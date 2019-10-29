@@ -15,7 +15,6 @@ public class Game : MonoBehaviour
 
     [HideInInspector]
     public Transform egg;
-
     [HideInInspector]
     public GameObject[] egg1;
     [HideInInspector]
@@ -27,7 +26,7 @@ public class Game : MonoBehaviour
 
     public float time = 1;
     public int count;
-    public int hp=0;
+    public int hp;
 
     public TextMesh counter;
     public GameObject hp1;
@@ -35,14 +34,16 @@ public class Game : MonoBehaviour
     public GameObject hp3;
 
     public GameObject pressStart;
+    public GameObject gameOver;
 
     public AudioSource soundStep;
     public AudioSource soundCrash;
     public AudioSource soundCount;
-    public bool isPlaying = false;
+    public bool isPlaying;
     // Start is called before the first frame update
     void Start()
     {
+        isPlaying = false;
         egg = GameObject.Find("Spawn1").transform;
         egg1 = new GameObject[10];
         for (int i = 0; i < egg.childCount; i++) egg1[i] = egg.Find(i.ToString()).gameObject;
@@ -64,21 +65,36 @@ public class Game : MonoBehaviour
         player3.SetActive(false);
         player4.SetActive(false);
 
+        hp1.SetActive(false);
+        hp2.SetActive(false);
+        hp3.SetActive(false);
+
+        pressStart.SetActive(true);
+        gameOver.SetActive(false);
+
         foreach (GameObject eg in egg1) eg.SetActive(false);
         foreach (GameObject eg in egg2) eg.SetActive(false);
         foreach (GameObject eg in egg3) eg.SetActive(false);
         foreach (GameObject eg in egg4) eg.SetActive(false);
+
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {//вызываю стартгейм напрямую здесь,
         if (Input.GetKeyDown(KeyCode.Space))
         {
-
-            pressStart.SetActive(false);
             StartGame();
+            pressStart.SetActive(false);
+            gameOver.SetActive(false);
         }
+
+       /* if (isPlaying)
+        {
+            pressStart.SetActive(false);
+            gameOver.SetActive(false);
+        }
+        else gameOver.SetActive(true);*/
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
@@ -118,22 +134,22 @@ public class Game : MonoBehaviour
 
     }
 
-        IEnumerator Timer()
-        {
-            GameObject egg = Instantiate(zero);
-            Egg comp = egg.AddComponent<Egg>();
-            comp.game = this;
-            comp.spawn = Random.Range(1, 5);
+   public IEnumerator Timer()
+    {
+        GameObject egg = Instantiate(zero);
+        Egg comp = egg.AddComponent<Egg>();
+        comp.game = this;
+        comp.spawn = Random.Range(1, 5);
         //comp.egg=comp.spawn == 1?egg1:comp.spawn == 2?egg2:comp.spawn == 3?egg3:comp.spawn == 4?egg4:egg1;
-            if (comp.spawn == 1) comp.egg = egg1;
-            if (comp.spawn == 2) comp.egg = egg2;
-            if (comp.spawn == 3) comp.egg = egg3;
-            if (comp.spawn == 4) comp.egg = egg4;
-            yield return new WaitForSeconds(time);
-            StartCoroutine(Timer());
-        }
+        if (comp.spawn == 1) comp.egg = egg1;
+        if (comp.spawn == 2) comp.egg = egg2;
+        if (comp.spawn == 3) comp.egg = egg3;
+        if (comp.spawn == 4) comp.egg = egg4;
+        yield return new WaitForSeconds(time);
+        StartCoroutine(Timer());
+    }
 
-        public void Step() { soundStep.Play(); }
+    public void Step() { soundStep.Play(); }
         public void Count()
         {
             count++;
@@ -150,8 +166,9 @@ public class Game : MonoBehaviour
             if (hp > 3) StopGame();
         }
 
-        void StartGame()
-        {
+
+    void StartGame()
+        {// иду на апдейт, если нажата спейс, возвращаю тру, здесь проверяю тру?значит инит и корутина
             isPlaying = true;
             playerPos = 1;
             player1.SetActive(true);
@@ -166,10 +183,11 @@ public class Game : MonoBehaviour
             StartCoroutine(Timer());
         }
 
-        void StopGame()
+
+    void StopGame()
         {
 
-
+            gameOver.SetActive(true);
             isPlaying = false;
             StopAllCoroutines();
             foreach (GameObject eg in egg1) eg.SetActive(false);
